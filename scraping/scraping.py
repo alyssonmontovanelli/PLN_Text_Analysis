@@ -15,7 +15,7 @@ driver.get("https://consumidor.gov.br/pages/indicador/relatos/abrir")
 
 
 # Controle de tempo para o execução da raspagem
-tempo_maximo = 15 * 60  # 20 minutos
+tempo_maximo = 30 * 60  # 20 minutos
 inicio = time.time()  # Marca o tempo de início
 
 try:
@@ -29,7 +29,7 @@ try:
                 EC.element_to_be_clickable((By.ID, "btn-mais-resultados"))
             )
             load_more_button.click()
-            time.sleep(3)  # Espera um pouco para carregar mais comentários
+            time.sleep(2)  # Espera um pouco para carregar mais comentários
         except Exception as e:
             print("Erro ao clicar no botão ou não há mais comentários:", e)
             break  # Sai do loop se não houver mais comentários
@@ -64,5 +64,5 @@ df = pd.DataFrame(dict_consumidor)
 print(df.shape)
 
 # Como existem duplicadas nesse dataset, 
-df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/dados_brutos_2.csv',
+df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/dados_brutos.csv',
                        sep =',', index = False, encoding = 'utf-8')
