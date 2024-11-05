@@ -15,7 +15,7 @@ driver.get("https://consumidor.gov.br/pages/indicador/relatos/abrir")
 
 
 # Controle de tempo para o execução da raspagem
-tempo_maximo = 30 * 60  # 20 minutos
+tempo_maximo = 35 * 60  # 20 minutos
 inicio = time.time()  # Marca o tempo de início
 
 try:
@@ -64,5 +64,5 @@ df = pd.DataFrame(dict_consumidor)
 print(df.shape)
 
 # Como existem duplicadas nesse dataset, 
-df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/dados_brutos.csv',
+df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/data_scraping.csv',
                        sep =',', index = False, encoding = 'utf-8')
