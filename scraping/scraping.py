@@ -15,7 +15,7 @@ driver.get("https://consumidor.gov.br/pages/indicador/relatos/abrir")
 
 
 # Controle de tempo para o execução da raspagem
-tempo_maximo = 35 * 60  # 20 minutos
+tempo_maximo = 60 * 60  # 20 minutos
 inicio = time.time()  # Marca o tempo de início
 
 try:
@@ -29,7 +29,7 @@ try:
                 EC.element_to_be_clickable((By.ID, "btn-mais-resultados"))
             )
             load_more_button.click()
-            time.sleep(2)  # Espera um pouco para carregar mais comentários
+            time.sleep(3)  # Espera um pouco para carregar mais comentários
         except Exception as e:
             print("Erro ao clicar no botão ou não há mais comentários:", e)
             break  # Sai do loop se não houver mais comentários
@@ -43,11 +43,24 @@ comentarios = WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, "p"))
         )
 
+
+# Pegando comenta´rios e notas e colocando-os em listas 
 comentarios_validos = []
+nota_resposta = []
+
 for contador in range(len(comentarios)):
  if contador >= 3 and (contador - 3) % 4 == 0:
   comentarios_validos.append(comentarios[contador].text)
+ 
+ elif contador >= 5 and (contador - 5) % 4 == 0:
+  nota_resposta.append(comentarios[contador].text)
 print(len(comentarios_validos))
+
+# Extraindo até onde foi o scraping
+contador_num = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.ID, "contador")))
+print("abaixo estão nota resposta")
+print(nota_resposta)
 
 # Extraido nomes das empresas
 titulo_teste = driver.find_elements(By.TAG_NAME , "h3")
@@ -56,7 +69,8 @@ titulo_valido = [titulo.text for titulo in titulo_teste]
 # Criação de Dicionário para DF
 dict_consumidor = {
  'Empresa': titulo_valido,
- 'Relato': comentarios_validos
+ 'Relato': comentarios_validos,
+ 'Avaliacao': nota_resposta
 }
 
 df = pd.DataFrame(dict_consumidor)
@@ -64,5 +78,5 @@ df = pd.DataFrame(dict_consumidor)
 print(df.shape)
 
 # Como existem duplicadas nesse dataset, 
-df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/data_scraping.csv',
+df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/data_scraping_bruto.csv',
                        sep =',', index = False, encoding = 'utf-8')
