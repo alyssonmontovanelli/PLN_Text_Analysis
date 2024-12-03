@@ -1,5 +1,6 @@
 # Web Sracping do site https://consumidor.gov.br/pages/indicador/relatos/abrir
 import os
+import json
 import time
 import pandas as pd
 from selenium import webdriver
@@ -15,7 +16,7 @@ driver.get("https://consumidor.gov.br/pages/indicador/relatos/abrir")
 
 
 # Controle de tempo para o execução da raspagem
-tempo_maximo = 60 * 60  # 20 minutos
+tempo_maximo = 120 * 60  # 2 horas
 inicio = time.time()  # Marca o tempo de início
 
 try:
@@ -25,7 +26,7 @@ try:
             print("Tempo máximo de coleta alcançado.")
             break  # Sai do loop quando tempo finalizar
         try:
-            load_more_button = WebDriverWait(driver, 2).until(
+            load_more_button = WebDriverWait(driver, 3).until(
                 EC.element_to_be_clickable((By.ID, "btn-mais-resultados"))
             )
             load_more_button.click()
@@ -59,8 +60,8 @@ print(len(comentarios_validos))
 # Extraindo até onde foi o scraping
 contador_num = WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.ID, "contador")))
-print("abaixo estão nota resposta")
-print(nota_resposta)
+# print("abaixo estão nota resposta")
+# print(nota_resposta)
 
 # Extraido nomes das empresas
 titulo_teste = driver.find_elements(By.TAG_NAME , "h3")
@@ -73,10 +74,40 @@ dict_consumidor = {
  'Avaliacao': nota_resposta
 }
 
-df = pd.DataFrame(dict_consumidor)
+# Apenas para garantir que ao final do scrapping, os dados serão salvos, mesmo se der
+# inconsistência no DF produzido pelo dict_consumidor
+dict_empresa = {
+   'Empresa': titulo_valido
+}
+dict_relato = {
+   'Relato': comentarios_validos
+}
+dict_avaliacao = {
+   'Avaliacao': nota_resposta
+}
 
+with open('dict_empresa.json', 'w', encoding='utf-8') as json_file:
+    json.dump(dict_empresa, json_file, ensure_ascii=False)
+
+with open('dict_relato.json', 'w', encoding='utf-8') as json_file:
+    json.dump(dict_relato, json_file, ensure_ascii=False)
+
+with open('dict_avaliacao.json', 'w', encoding='utf-8') as json_file:
+    json.dump(dict_avaliacao, json_file, ensure_ascii=False)
+
+print(f"Data Final - {contador_num}")
+
+
+
+try:
+   df = pd.DataFrame(dict_consumidor)
+except Exception as e:
+   print("Não foi possível criar o DF, por causa do: ", e)
+   
+
+print(contador_num)
 print(df.shape)
 
 # Como existem duplicadas nesse dataset, 
-df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/data_scraping_bruto.csv',
+df.to_csv('/Projetos Pessoais/DataScience/PLN_Text_Analysis/data/data_scraping_bruto_2hr.csv',
                        sep =',', index = False, encoding = 'utf-8')
